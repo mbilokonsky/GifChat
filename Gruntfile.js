@@ -16,12 +16,19 @@ module.exports = function(grunt) {
                 src: ['**/*.html', '**/*.css'],
                 dest: 'public/'
             }
+        },
+        watch: {
+            scripts: {
+                files: "**/*.js",
+                tasks: ["browserify", "copy"]
+            }
         }
     });
 
     // Load the npm installed tasks
     grunt.loadNpmTasks('grunt-browserify');
     grunt.loadNpmTasks('grunt-contrib-copy');
+    grunt.loadNpmTasks('grunt-contrib-watch');
 
     // The default tasks to run when you type: grunt
     grunt.registerTask('default', ['browserify', 'copy']);

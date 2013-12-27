@@ -1,24 +1,20 @@
 <!doctype html>
-<!-- Specify the AngularJS app to use -->
-<html lang="en" ng-app="myApp">
-<head>
-    <meta charset="utf-8">
-    <title>My AngularJS App</title>
-    <!-- The css is copied into dist/css/app.css by the copy task -->
-    <link rel="stylesheet" href="css/app.css"/>
-</head>
-<body>
+<html lang="en" ng-app="GifChat">
+    <head>
+        <meta charset="utf-8">
+        <title>GifChat!</title>
+        <link rel="stylesheet" href="css/app.css"/>
+    </head>
+    <body>
 
-<ul class="menu">
-    <li><a href="#/view1">view1</a></li>
-    <li><a href="#/view2">view2</a></li>
-</ul>
+        <h1>GifChat! <small>inspired by <a href="http://chat.meatspac.es">chat.meatspac.es</a></small></h1>
+        <ul class="menu">
+            <li><a href="#/view1">view1</a></li>
+            <li><a href="#/view2">view2</a></li>
+        </ul>
 
-<!-- A simple AngularJS view -->
-<div ng-view></div>
+        <div ng-view></div>
 
-<!-- This script will be bundled by the browserify task into dist/js/app.js -->
-<!-- You should only ever really need this one script tag -->
-<script src="js/app.js"></script>
-</body>
+        <script src="js/app.js"></script>
+    </body>
 </html>
