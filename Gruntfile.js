@@ -19,7 +19,7 @@ module.exports = function(grunt) {
         },
         watch: {
             scripts: {
-                files: "**/*.js",
+                files: ["public_source/**/*.js", "public_source/**/*.css", "public_source/**/*.html"],
                 tasks: ["browserify", "copy"]
             }
         }
