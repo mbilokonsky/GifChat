@@ -11,7 +11,7 @@ angular.module("GifChat.directives", [])
             scope: {},
             templateUrl: "/partials/chat.html",
             replace: true,
-            link: function(scope, element) {
+            link: function(scope) {
                 scope.messages = [];
                 scope.socket = $SocketService.connect("foo");
 
@@ -20,13 +20,13 @@ angular.module("GifChat.directives", [])
                     console.log(e);
                     scope.appendMessage(e.data);
                     scope.$apply();
-                }
+                };
 
                 scope.appendMessage = function(message) {
                     scope.messages.push(message);
                 };
 
-                scope.appendMessage("You just joined the chat!");
+                scope.appendMessage("---> You just joined the chat!");
             },
             controller: ["$scope", function($scope) {
                 $scope.submit = function() {

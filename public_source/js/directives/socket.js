@@ -1,4 +1,4 @@
-function SocketConnection(channel) {
+function activateConnection(channel) {
     var socketURL = "ws://" + window.location.host + "/socket/" + channel;
     var ws = new WebSocket(socketURL);
 
@@ -23,7 +23,7 @@ var connections = {};
 module.exports = {
     connect: function(channel) {
         if (!connections[channel]) {
-            connections[channel] = new SocketConnection(channel);
+            connections[channel] = activateConnection(channel);
         }
 
         return connections[channel];
