@@ -1,4 +1,1 @@
-* {
-    background-color: #000;
-    color: #fff;
-}
+.nav, .pagination, .carousel a { cursor: pointer; }

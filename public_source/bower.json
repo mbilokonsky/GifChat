@@ -1,0 +1,23 @@
+{
+  "name": "GifChatFrontEnd",
+  "version": "0.0.1",
+  "homepage": "https://github.com/mbilokonsky/GifChat",
+  "description": "front end for GifChat",
+  "main": "js/app.js",
+  "authors": [
+    "@mykola"
+  ],
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "angular": "~1.2.6",
+    "angular-bootstrap": "~0.9.0"
+  }
+}

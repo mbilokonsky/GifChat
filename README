@@ -1,4 +1,19 @@
-This is your new Play application
-=====================================
+GifChat
+======
+with apologies to http://chat.meatspac.es
 
-This file will be packaged with your application, when using `play dist`.
+This is going to be a more fully-featured clone of the popular minimalist gif-chatting site chat.meatspac.es. I'm building
+it for my own team in order to make remote collaboration a bit more fun. Here's the breakdown:
+
+Back End: Play Framework with no bells or whistles. It serves static content and maintains websocket channel state. I hope
+to pull this out and replace it with a Clojure-based implementation soon, but for now this was the quickest way to get
+a server up and running so that I could focus on the front end.
+
+Front End: AngularJS, with the websocket wrapped in an injectable service and the core chat component implemented as a
+reusable directive.
+
+Still super minimalist, but I want to add a few features that meatspace chat does not. First of all I plan to add auth,
+which would have users log in using their twitter accounts for identity. I'm going to integrate with OS-level
+notifications so that you can get notified (even texted?) when someone does X. I want to add various utilities for scripting,
+so that bots can be written to join the chat and respond to certain kinds of messages. Various kinds of logging and
+the ability to export gifs into reusable macros, things like that.
