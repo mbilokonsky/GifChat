@@ -1,23 +1,25 @@
 {
-  "name": "GifChatFrontEnd",
-  "version": "0.0.1",
-  "homepage": "https://github.com/mbilokonsky/GifChat",
-  "description": "front end for GifChat",
-  "main": "js/app.js",
-  "authors": [
-    "@mykola"
-  ],
-  "license": "MIT",
-  "private": true,
-  "ignore": [
-    "**/.*",
-    "node_modules",
-    "bower_components",
-    "test",
-    "tests"
-  ],
-  "dependencies": {
-    "angular": "~1.2.6",
-    "angular-bootstrap": "~0.9.0"
-  }
+    "name": "GifChatFrontEnd",
+    "version": "0.0.1",
+    "homepage": "https://github.com/mbilokonsky/GifChat",
+    "description": "front end for GifChat",
+    "main": "js/app.js",
+    "authors": [
+        "@mykola"
+    ],
+    "license": "MIT",
+    "private": true,
+    "ignore": [
+        "**/.*",
+        "node_modules",
+        "bower_components",
+        "test",
+        "tests"
+    ],
+    "dependencies": {
+        "angular": "~1.2.6",
+        "angular-bootstrap": "~0.9.0",
+        "animated-gif": "sole/Animated_GIF#1cfb9afc999bdcfc51526fcaa0cd60fdc5d58f4c",
+        "gumhelper": "sole/gumhelper"
+    }
 }

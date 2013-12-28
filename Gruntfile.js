@@ -13,7 +13,7 @@ module.exports = function(grunt) {
                 // This copies all the html and css into the dist/ folder
                 expand: true,
                 cwd: 'public_source/',
-                src: ['**/*.html', '**/*.css'],
+                src: ['**/*.html', 'css/**/*.css'],
                 dest: 'public/'
             }
         },
