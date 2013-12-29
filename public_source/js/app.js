@@ -2,6 +2,7 @@
 // and give us access to the `angular` global object.
 require('../bower_components/angular/angular.js');
 require("../bower_components/angular-bootstrap/ui-bootstrap-tpls.js");
+var $ = require("../bower_components/jquery/jquery.min.js");
 
 require("./services/services");
 require("./filters/filters");

@@ -1,14 +1,12 @@
 var sockets = require("./socket");
 var gumHelper = require("../../bower_components/gumhelper/gumhelper.js");
 var AnimatedGif = require("../../bower_components/animated-gif/src/Animated_GIF.js");
-var $ = require("../../bower_components/jquery/jquery.min.js");
-
 
 angular.module("GifChat.directives", [])
     .factory("SocketService", function() {
         return sockets;
     })
-    .directive("chat", ["SocketService", function ($SocketService) {
+    .directive("chat", ["SocketService", "VideoShooter", function ($SocketService, $VideoShooter) {
         return {
             restrict: "E",
             scope: {},
@@ -16,7 +14,7 @@ angular.module("GifChat.directives", [])
             replace: true,
             link: function(scope, element) {
                 // first, initialize video feed.
-                var videoFeed;
+                var shooter;
                 gumHelper.startVideoStreaming(function(err, stream, videoElement, width, height) {
                     if (err) {
                         alert("Oh noes!");
@@ -28,18 +26,18 @@ angular.module("GifChat.directives", [])
                 });
 
                 function addVideo(videoElement) {
-                    videoFeed = videoElement;
                     $(element.children()[3]).append(videoElement);
+                    shooter = new $VideoShooter(videoElement);
                 }
 
                 scope.messages = [];
                 scope.socket = $SocketService.connect("foo");
 
                 scope.socket.onmessage = function(e) {
-                    console.log("Woo:");
-                    console.log(e);
+
                     scope.appendMessage(e.data);
                     scope.$apply();
+                    // TODO do a notification here
                 };
 
                 scope.appendMessage = function(message) {
@@ -47,38 +45,21 @@ angular.module("GifChat.directives", [])
                 };
 
                 scope.postNewMessage = function(message, callback) {
-                    var ag = new AnimatedGif( {
-                        workerPath: '/js/worker.js'
+                    var image;
+                    shooter.getShot(function(image) {
+                        var img = document.createElement("img");
+                        img.src = image;
+                        element.append(img);
+                        console.log("Image composed and appended!");
+
+                        console.log("Now posting message!");
+                        scope.socket.send(message);
+
+                        console.log("Now executing callback:");
+                        callback();
+                    }, 20, 0.1, function(progress) {
+                        console.log("Progress: " + progress);
                     });
-
-                    ag.setSize(320, 240);
-                    var pending_frames = 10;
-                    captureFrame();
-
-                    function captureFrame() {
-                        if (videoFeed) {
-                            console.log("Adding a frame...");
-                            ag.addFrame(videoFeed);
-                            pending_frames--;
-                        }
-
-                        if (pending_frames > 0) {
-                            setTimeout(captureFrame, 100);
-                        } else {
-                            ag.getBase64GIF(function(image) {
-                                var img = document.createElement("img");
-                                img.src = image;
-                                element.append(img);
-                                console.log("Image composed and appended!");
-
-                                console.log("Now posting message!");
-                                scope.socket.send(message);
-
-                                console.log("Now executing callback:");
-                                callback();
-                            });
-                        }
-                    }
                 };
 
                 scope.appendMessage("---> You just joined the chat!");
