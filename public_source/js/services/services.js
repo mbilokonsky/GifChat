@@ -12,16 +12,9 @@ angular.module("GifChat.services", [])
                 var ag = new AnimatedGif({workerPath: '/js/worker.js'});
                 ag.setSize(videoElement.videoWidth, videoElement.videoHeight);
                 ag.setDelay(interval);
-
-                console.log(ag);
-
                 captureFrame();
 
                 function captureFrame() {
-                    console.log("About to capture frame.");
-                    console.log(videoElement);
-                    console.log(ag);
-
                     ag.addFrame(videoElement);
                     pendingFrames--;
 
