@@ -15,6 +15,10 @@ module.exports = function(grunt) {
                 cwd: 'public_source/',
                 src: ['**/*.html', 'css/**/*.css'],
                 dest: 'public/'
+            },
+            worker: {
+                src: 'public_source/bower_components/animated-gif/dist/Animated_GIF.worker.min.js',
+                dest: 'public/js/worker.js'
             }
         },
         watch: {
