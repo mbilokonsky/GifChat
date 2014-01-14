@@ -10,7 +10,7 @@ angular.module("GifChat.directives", [])
         return {
             restrict: "E",
             scope: {},
-            templateUrl: "/partials/chat.html",
+            templateUrl: "/partials/directives/chat_directive.html",
             replace: true,
             link: function(scope, element) {
                 // first, initialize video feed.
@@ -26,6 +26,7 @@ angular.module("GifChat.directives", [])
                 });
 
                 function addVideo(videoElement) {
+                    console.log("")
                     $(element.children()[3]).append(videoElement);
                     shooter = new $VideoShooter(videoElement);
                 }

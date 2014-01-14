@@ -19,6 +19,12 @@ module.exports = function(grunt) {
             worker: {
                 src: 'public_source/bower_components/animated-gif/dist/Animated_GIF.worker.min.js',
                 dest: 'public/js/worker.js'
+            },
+            fonts: {
+                expand: true,
+                cwd: 'public_source/bower_components/bootstrap/dist/fonts/',
+                src: "**",
+                dest: "public/fonts/"
             }
         },
         watch: {

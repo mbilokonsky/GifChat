@@ -1,0 +1,10 @@
+<h1>Login</h1>
+<p>Eventually I'll support logging in, but for now this doesn't do anything. If you like, feel free to enter a username here, though, and I'll remember it.</p>
+<span>Current username: {{user.name}}</span>
+<form class="form-inline" ng-submit="setName()">
+    <label>You can call me...</label>
+    <input type="text" ng-model="userName" />
+    <button class="btn btn-default" type="submit">
+        <span class="glyphicon glyphicon-thumbs-up" />
+    </button>
+</form>

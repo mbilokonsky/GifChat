@@ -28,4 +28,10 @@ angular.module("GifChat.services", [])
                 }
             }
         }
+    })
+    .service("User", function() {
+        var user = {
+            name: "[anonymous]"
+        };
+        return user;
     });

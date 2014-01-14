@@ -8,6 +8,8 @@ GET     /js/:file                       controllers.Assets.at(path="/public/js",
 GET     /css/:file                      controllers.Assets.at(path="/public/css", file)
 GET     /images/:file                   controllers.Assets.at(path="/public/images", file)
 GET     /partials/:file                 controllers.Assets.at(path="/public/partials", file)
+GET     /partials/directives/:file      controllers.Assets.at(path="/public/partials/directives", file)
+GET     /fonts/:file                    controllers.Assets.at(path="/public/fonts", file)
 GET     /bower_components/:file         controllers.Assets.at(path="/public/bower_components", file)
 
 GET		/socket/:channel			controllers.Application.connectToSocket(channel)
