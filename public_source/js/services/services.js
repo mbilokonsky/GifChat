@@ -19,6 +19,9 @@ angular.module("GifChat.services", [])
                 return;
             }
 
+            videoElement.width = 160;
+            videoElement.height = 120;
+
             camera.videoElement = videoElement;
             listeners.forEach(function(callback) {
                 callback(camera.videoElement);
