@@ -21,8 +21,8 @@ angular.module("GifChat.services", [])
             }
 
 
-            videoElement.width = 160;
-            videoElement.height = 120;
+            videoElement.width = 320;
+            videoElement.height = 240;
 
             camera.videoElement = videoElement;
             camera.stream = stream;
