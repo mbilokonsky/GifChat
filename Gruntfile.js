@@ -30,7 +30,7 @@ module.exports = function(grunt) {
                 expand: true,
                 cwd: 'public_source/bower_components/bootstrap/dist/css/',
                 src: 'bootstrap.css',
-                dest: 'public/css/bootstrap.css'
+                dest: 'public/css/'
             }
         },
         watch: {
