@@ -30,7 +30,6 @@ angular.module("GifChat.directives", [])
             },
             templateUrl: "/partials/directives/message_renderer_directive.html",
             link: function(scope, element) {
-                console.log("MessageRenderer linking function initialized.");
                 var img = document.createElement("img");
                 img.src = scope.message.image;
                 img.width = 160;
@@ -55,14 +54,10 @@ angular.module("GifChat.directives", [])
                 var shooter;
 
                 if (Camera.videoElement) {
-                    console.log("Video element found!");
-                    console.log(camera);
                     shooter = new $VideoShooter(Camera.videoElement);
                 } else {
                     Camera.register(function(videoElement) {
                         shooter = new $VideoShooter(videoElement);
-                        console.log("OK, NOW the video element has been found!");
-                        console.log(videoElement);
                     });
                 }
 
@@ -82,18 +77,7 @@ angular.module("GifChat.directives", [])
                 scope.postNewMessage = function(message, callback) {
                     var image;
                     shooter.getShot(function(image) {
-                        var img = document.createElement("img");
-                        img.src = image;
-                        img.width = 320;
-                        img.height = 240;
-
-                        element.append(img);
-                        console.log("Image composed and appended!");
-
-                        console.log("Now posting message!");
                         scope.socket.send(JSON.stringify({user: User.name, text: message, image: image}));
-
-                        console.log("Now executing callback:");
                         callback();
                     }, 20, 0.1, function(progress) {
                         console.log("Progress: " + progress);
