@@ -1,6 +1,11 @@
 <div>
     <h3>This is the chat window.</h3>
-    <alert ng-repeat="message in messages" type="success" close="closeAlert($index)">{{message}}</alert>
+    <ul class="chatThread">
+        <li ng-repeat="message in messages">
+            <message-renderer message="message"></message-renderer>
+        </li>
+    </ul>
+
     <form ng-submit="submit()">
         <input ng-model="messageToSend" />
     </form>

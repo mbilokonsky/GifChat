@@ -1,7 +1,32 @@
 var AnimatedGif = require("../../bower_components/animated-gif/src/Animated_GIF.js");
+var gumHelper = require("../../bower_components/gumhelper/gumhelper.js");
 
 angular.module("GifChat.services", [])
     .value("version", "0.1")
+    .service("Camera", function() {
+        var listeners = [];
+        var camera = {
+            videoElement: null,
+            register: function(callback) {
+                listeners.push(callback);
+            }
+        }
+
+        gumHelper.startVideoStreaming(function(err, stream, videoElement, width, height) {
+            if (err) {
+                alert("Oh noes!");
+                console.error(err);
+                return;
+            }
+
+            camera.videoElement = videoElement;
+            listeners.forEach(function(callback) {
+                callback(camera.videoElement);
+            });
+        });
+
+        return camera;
+    })
     .service("VideoShooter", function() {
         return function(videoElement) {
             this.getShot = function(callback, numFrames, interval, progressCallback) {

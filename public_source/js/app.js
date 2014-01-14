@@ -51,11 +51,3 @@ app.config(function($stateProvider, $urlRouterProvider) {
             }]
         })
 });
-
-app.controller("NavController", ["$scope", "User", function($scope, User) {
-    console.log("NavController initialized!");
-    $scope.user = User;
-    $scope.logout = function() {
-        User.name = "[anonymous]";
-    }
-}]);

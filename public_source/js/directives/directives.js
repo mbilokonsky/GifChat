@@ -1,12 +1,50 @@
 var sockets = require("./socket");
-var gumHelper = require("../../bower_components/gumhelper/gumhelper.js");
-var AnimatedGif = require("../../bower_components/animated-gif/src/Animated_GIF.js");
 
 angular.module("GifChat.directives", [])
     .factory("SocketService", function() {
         return sockets;
     })
-    .directive("chat", ["SocketService", "VideoShooter", function ($SocketService, $VideoShooter) {
+    .directive("navbar", [function() {
+        return {
+            restrict: "E",
+            scope: {},
+            replace: true,
+            templateUrl: "/partials/directives/navbar_directive.html",
+            link: function(scope, element) {
+
+            },
+            controller: ["$scope", "User", function($scope, User) {
+                console.log("NavController initialized!");
+                $scope.user = User;
+                $scope.logout = function() {
+                    User.name = "[anonymous]";
+                }
+            }]
+        };
+    }])
+    .directive("messageRenderer", [function() {
+        return {
+            restrict: "E",
+            scope: {
+                message: "="
+            },
+            templateUrl: "/partials/directives/message_renderer_directive.html",
+            link: function(scope, element) {
+                console.log("MessageRenderer linking function initialized.");
+                var img = document.createElement("img");
+                img.src = scope.message.image;
+                img.width = 160;
+                img.height = 120;
+
+                element.prepend(img);
+                // this would be a good place to dispatch a notification!
+            },
+            controller: ["$scope", function($scope) {
+
+            }]
+        }
+    }])
+    .directive("chat", ["SocketService", "Camera", "VideoShooter", "User", function ($SocketService, Camera, $VideoShooter, User) {
         return {
             restrict: "E",
             scope: {},
@@ -15,30 +53,26 @@ angular.module("GifChat.directives", [])
             link: function(scope, element) {
                 // first, initialize video feed.
                 var shooter;
-                gumHelper.startVideoStreaming(function(err, stream, videoElement, width, height) {
-                    if (err) {
-                        alert("Oh noes!");
-                        console.error(err);
-                        return;
-                    }
 
-                    addVideo(videoElement);
-                });
-
-                function addVideo(videoElement) {
-                    console.log("")
-                    $(element.children()[3]).append(videoElement);
-                    shooter = new $VideoShooter(videoElement);
+                if (Camera.videoElement) {
+                    console.log("Video element found!");
+                    console.log(camera);
+                    shooter = new $VideoShooter(Camera.videoElement);
+                } else {
+                    Camera.register(function(videoElement) {
+                        shooter = new $VideoShooter(videoElement);
+                        console.log("OK, NOW the video element has been found!");
+                        console.log(videoElement);
+                    });
                 }
+
 
                 scope.messages = [];
                 scope.socket = $SocketService.connect("foo");
 
                 scope.socket.onmessage = function(e) {
-
-                    scope.appendMessage(e.data);
+                    scope.appendMessage(JSON.parse(e.data));
                     scope.$apply();
-                    // TODO do a notification here
                 };
 
                 scope.appendMessage = function(message) {
@@ -50,11 +84,14 @@ angular.module("GifChat.directives", [])
                     shooter.getShot(function(image) {
                         var img = document.createElement("img");
                         img.src = image;
+                        img.width = 320;
+                        img.height = 240;
+
                         element.append(img);
                         console.log("Image composed and appended!");
 
                         console.log("Now posting message!");
-                        scope.socket.send(message);
+                        scope.socket.send(JSON.stringify({user: User.name, text: message, image: image}));
 
                         console.log("Now executing callback:");
                         callback();
@@ -63,7 +100,7 @@ angular.module("GifChat.directives", [])
                     });
                 };
 
-                scope.appendMessage("---> You just joined the chat!");
+                scope.appendMessage({user: "[root]", text: "---> You just joined the chat!", image: "http://readjack.files.wordpress.com/2012/02/cute_bunny.jpg"});
             },
             controller: ["$scope", function($scope) {
                 $scope.submit = function() {

@@ -24,9 +24,7 @@ public class Application extends Controller {
 
                 in.onMessage(new F.Callback<String>() {
     				public void invoke(String event) {
-    					System.out.println("Input Received: " + event);
-                        for (WebSocket.Out<String> output : sockets.get(socket)) {
-                            System.out.println("\tForwarding message to: " + out);
+    					for (WebSocket.Out<String> output : sockets.get(socket)) {
                             output.write(event);
                         }
     				}
@@ -39,13 +37,9 @@ public class Application extends Controller {
     				}
     			});
 
-    			out.write("Hello!");
+    			out.write("{\"user\": \"[server]\", \"text\": \"hello!\", \"image\":\"http://images4.fanpop.com/image/photos/19800000/baby-bunnies-baby-bunnies-19896692-1024-768.jpg\"}");
     		}
     	};
-
-
-
-
 
         return sock;
     }
