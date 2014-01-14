@@ -55,12 +55,18 @@ angular.module("GifChat.directives", [])
 
                 if (Camera.videoElement) {
                     shooter = new $VideoShooter(Camera.videoElement);
+                    showPreview(Camera);
                 } else {
                     Camera.register(function(videoElement) {
                         shooter = new $VideoShooter(videoElement);
+                        showPreview(Camera);
                     });
                 }
 
+
+                function showPreview(camera) {
+                    element.append(camera.videoElement);
+                }
 
                 scope.messages = [];
                 scope.socket = $SocketService.connect("foo");
@@ -75,11 +81,11 @@ angular.module("GifChat.directives", [])
                 };
 
                 scope.postNewMessage = function(message, callback) {
-                    var image;
                     shooter.getShot(function(image) {
+                        console.log("Image size: " + image.length);
                         scope.socket.send(JSON.stringify({user: User.name, text: message, image: image}));
                         callback();
-                    }, 20, 0.1, function(progress) {
+                    }, 15, 0.15, function(progress) {
                         console.log("Progress: " + progress);
                     });
                 };

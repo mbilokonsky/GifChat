@@ -7,6 +7,7 @@ angular.module("GifChat.services", [])
         var listeners = [];
         var camera = {
             videoElement: null,
+            stream: null,
             register: function(callback) {
                 listeners.push(callback);
             }
@@ -19,10 +20,14 @@ angular.module("GifChat.services", [])
                 return;
             }
 
+
             videoElement.width = 160;
             videoElement.height = 120;
 
             camera.videoElement = videoElement;
+            camera.stream = stream;
+            camera.dimensions = {width: width, height: height};
+
             listeners.forEach(function(callback) {
                 callback(camera.videoElement);
             });
@@ -38,7 +43,7 @@ angular.module("GifChat.services", [])
 
                 var pendingFrames = numFrames;
                 var ag = new AnimatedGif({workerPath: '/js/worker.js'});
-                ag.setSize(videoElement.videoWidth, videoElement.videoHeight);
+                ag.setSize(320, 240);
                 ag.setDelay(interval);
                 captureFrame();
 
