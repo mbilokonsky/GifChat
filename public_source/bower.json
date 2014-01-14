@@ -17,6 +17,7 @@
         "tests"
     ],
     "dependencies": {
+        "jquery": "1.10.2",
         "angular": "~1.2.6",
         "angular-bootstrap": "~0.9.0",
         "animated-gif": "sole/Animated_GIF#1cfb9afc999bdcfc51526fcaa0cd60fdc5d58f4c",

@@ -25,6 +25,12 @@ module.exports = function(grunt) {
                 cwd: 'public_source/bower_components/bootstrap/dist/fonts/',
                 src: "**",
                 dest: "public/fonts/"
+            },
+            css: {
+                expand: true,
+                cwd: 'public_source/bower_components/bootstrap/dist/css/',
+                src: 'bootstrap.css',
+                dest: 'public/css/bootstrap.css'
             }
         },
         watch: {
