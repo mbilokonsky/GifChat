@@ -85,6 +85,13 @@ angular.module("GifChat.directives", [])
                     }
                 };
 
+                var previousProgress = 0;
+                function updateProgress(percent) {
+                    if (percent == 1) {
+                        previousProgress = 0;
+                    }
+                }
+
                 scope.postNewMessage = function(message, callback) {
                     shooter.getShot(function(image) {
                         console.log("Shot taken, now posting!");
@@ -98,9 +105,7 @@ angular.module("GifChat.directives", [])
                                 console.err(err);
                                 scope.socket.send(JSON.stringify({user: User.name, text: message, image: "/images/error.gif"}));
                             });
-                    }, 10, 0.2, function(progress) {
-                        console.log("Progress: " + progress);
-                    });
+                    }, 10, 0.2, updateProgress);
                 };
 
                 scope.appendMessage({user: "[root]", text: "---> You're in the chat now, be prepared!", image: "/images/local.gif"});
