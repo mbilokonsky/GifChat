@@ -80,6 +80,9 @@ angular.module("GifChat.directives", [])
 
                 scope.appendMessage = function(message) {
                     scope.messages.push(message);
+                    while (scope.messages.length > 30) {
+                        scope.messages.slice(1);
+                    }
                 };
 
                 scope.postNewMessage = function(message, callback) {
@@ -95,7 +98,7 @@ angular.module("GifChat.directives", [])
                                 console.err(err);
                                 scope.socket.send(JSON.stringify({user: User.name, text: message, image: "/images/error.gif"}));
                             });
-                    }, 15, 0.15, function(progress) {
+                    }, 10, 0.2, function(progress) {
                         console.log("Progress: " + progress);
                     });
                 };
@@ -103,12 +106,15 @@ angular.module("GifChat.directives", [])
                 scope.appendMessage({user: "[root]", text: "---> You're in the chat now, be prepared!", image: "/images/local.gif"});
             },
             controller: ["$scope", function($scope) {
+                $scope.inputEnabled = true;
                 $scope.submit = function() {
+                    $scope.inputEnabled = false;
                     $scope.postNewMessage($scope.messageToSend, function(err) {
                         if (err) {
                             // TODO
                         }
                         $scope.messageToSend = "";
+                        $scope.inputEnabled = true;
                     });
 
                 }
