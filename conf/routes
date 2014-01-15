@@ -9,6 +9,7 @@ GET     /css/*file                      controllers.Assets.at(path="/public/css"
 GET     /images/*file                   controllers.Assets.at(path="/public/images", file)
 GET     /partials/*file                 controllers.Assets.at(path="/public/partials", file)
 GET     /fonts/*file                    controllers.Assets.at(path="/public/fonts", file)
+GET     /gifs/*file                     controllers.Application.loadImage(file:String)
 
 GET		/socket/:channel			controllers.Application.connectToSocket(channel)
 

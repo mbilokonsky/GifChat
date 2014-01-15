@@ -18,7 +18,7 @@ public class Application extends Controller {
     @BodyParser.Of(value = BodyParser.Json.class, maxLength = 1000000 * 1024)
     public static Result uploadImage() throws InterruptedException {
         String fileGuid = UUID.randomUUID().toString();
-        String fileName = "public/images/" + fileGuid + ".gif";
+        String fileName = "gifs/" + fileGuid + ".gif";
 
         byte[] ba = Base64.decode(request().body().asJson().get("payload").asText());
 
@@ -27,11 +27,17 @@ public class Application extends Controller {
             fos.write(ba);
             fos.flush();
             fos.close();
+            System.out.println("Saved a file!");
         } catch(Exception e) {
             return internalServerError(e.toString());
         }
+        return ok("{\"fileName\":\"" + fileName + "\"}");
+    }
 
-        return ok("{\"fileName\":\"/images/" + fileGuid + ".gif\"}");
+    public static Result loadImage(String name) {
+        System.out.println("Received a request for " + name);
+        File file = new File("gifs/" + name);
+        return ok(file);
     }
 
     public static WebSocket<String> connectToSocket(final String socket) {

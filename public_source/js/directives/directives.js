@@ -214,6 +214,7 @@ angular.module("GifChat.directives", [])
                 scope.postNewMessage = function(message, callback) {
                     shooter.getShot(function(image) {
                         console.log("Shot taken, now posting!");
+                        console.log("Posting message: " + message);
                         var img = image.substr(22);
                         $http.post("/upload", JSON.stringify({payload: img}))
                             .success(function(result) {
@@ -232,14 +233,17 @@ angular.module("GifChat.directives", [])
             controller: ["$scope", function($scope) {
                 $scope.inputEnabled = true;
                 $scope.submit = function() {
+
                     $scope.inputEnabled = false;
-                    $scope.messageToSend = "";
                     $scope.postNewMessage($scope.messageToSend, function(err) {
                         if (err) {
                             // TODO
                         }
                         $scope.inputEnabled = true;
                     });
+                    $scope.messageToSend = "";
+
+
 
                 }
             }]
