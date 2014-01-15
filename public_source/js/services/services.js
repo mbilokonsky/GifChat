@@ -57,6 +57,7 @@ angular.module("GifChat.services", [])
                         setTimeout(captureFrame, interval * 1000);
                     } else {
                         ag.getBase64GIF(callback);
+
                     }
                 }
             }

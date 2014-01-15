@@ -16,3 +16,4 @@ dist
 node_modules
 public
 public_source/bower_components
+/gifs

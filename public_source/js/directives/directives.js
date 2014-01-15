@@ -43,7 +43,8 @@ angular.module("GifChat.directives", [])
             }]
         }
     }])
-    .directive("chat", ["SocketService", "Camera", "VideoShooter", "User", function ($SocketService, Camera, $VideoShooter, User) {
+    .directive("chat", ["SocketService", "Camera", "VideoShooter", "User", "$http", function ($SocketService, Camera, $VideoShooter, User, $http) {
+        var shooter;
         return {
             restrict: "E",
             scope: {},
@@ -51,9 +52,10 @@ angular.module("GifChat.directives", [])
             replace: true,
             link: function(scope, element) {
                 // first, initialize video feed.
-                var shooter;
 
-                if (Camera.videoElement) {
+                if (shooter) {
+                    showPreview(Camera);
+                } else if (Camera.videoElement) {
                     shooter = new $VideoShooter(Camera.videoElement);
                     showPreview(Camera);
                 } else {
@@ -82,15 +84,23 @@ angular.module("GifChat.directives", [])
 
                 scope.postNewMessage = function(message, callback) {
                     shooter.getShot(function(image) {
-                        console.log("Image size: " + image.length);
-                        scope.socket.send(JSON.stringify({user: User.name, text: message, image: image}));
-                        callback();
+                        console.log("Shot taken, now posting!");
+                        var img = image.substr(22);
+                        $http.post("/upload", JSON.stringify({payload: img}))
+                            .success(function(result) {
+                                scope.socket.send(JSON.stringify({user: User.name, text: message, image: result.fileName}));
+                                callback();
+                            })
+                            .error(function(err) {
+                                console.err(err);
+                                scope.socket.send(JSON.stringify({user: User.name, text: message, image: "/images/error.gif"}));
+                            });
                     }, 15, 0.15, function(progress) {
                         console.log("Progress: " + progress);
                     });
                 };
 
-                scope.appendMessage({user: "[root]", text: "---> You just joined the chat!", image: "http://readjack.files.wordpress.com/2012/02/cute_bunny.jpg"});
+                scope.appendMessage({user: "[root]", text: "---> You're in the chat now, be prepared!", image: "/images/local.gif"});
             },
             controller: ["$scope", function($scope) {
                 $scope.submit = function() {

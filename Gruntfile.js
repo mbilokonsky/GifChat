@@ -31,6 +31,12 @@ module.exports = function(grunt) {
                 cwd: 'public_source/bower_components/bootstrap/dist/css/',
                 src: 'bootstrap.css',
                 dest: 'public/css/'
+            },
+            images: {
+                expand: true,
+                cwd: 'public_source/images/',
+                src: '**',
+                dest: 'public/images/'
             }
         },
         watch: {
