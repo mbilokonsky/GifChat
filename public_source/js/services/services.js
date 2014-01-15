@@ -43,7 +43,7 @@ angular.module("GifChat.services", [])
 
                 var pendingFrames = numFrames;
                 var ag = new AnimatedGif({workerPath: '/js/worker.js'});
-                ag.setSize(320, 240);
+                ag.setSize(160, 120);
                 ag.setDelay(interval);
                 captureFrame();
 
