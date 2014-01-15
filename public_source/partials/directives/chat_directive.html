@@ -9,7 +9,7 @@
     <div id="chatInput">
 
         <form class="form-inline" ng-submit="submit()">
-            <input ng-model="messageToSend" ng-enabled="inputEnabled" />
+            <input ng-model="messageToSend" ng-disabled="!inputEnabled" />
         </form>
     </div>
 
