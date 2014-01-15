@@ -43,6 +43,123 @@ angular.module("GifChat.directives", [])
             }]
         }
     }])
+    .directive("videoChat", ["User", "Camera", function(User, Camera) {
+
+        return {
+            restrict: "E",
+            scope: {
+                session:"@"
+            },
+            templateUrl: "/partials/directives/video_chat_directive.html",
+            link: function(scope, element) {
+                var localVideoElements = element.find('video');
+                var lv1 = localVideoElements[0];
+                var lv2 = localVideoElements[1];
+                var lv3 = localVideoElements[2];
+
+                var rv1 = localVideoElements[3];
+                var rv2 = localVideoElements[4];
+                var rv3 = localVideoElements[5];
+
+
+                if (Camera.stream) {
+                    initializeRPC();
+                } else {
+                    Camera.register(initializeRPC);
+                }
+
+                var pc1;
+                var pc2;
+
+                function initializeRPC() {
+                    lv1.src = Camera.streamUrl;
+                    lv1.play();
+
+                    lv2.src = Camera.streamUrl;
+                    lv2.play();
+
+                    lv3.src = Camera.streamUrl;
+                    lv3.play();
+
+                    console.log(Camera);
+
+                    pc1 = new webkitRTCPeerConnection(
+                        { "iceServers": [{ "url": "stun:stun.l.google.com:19302" }] }
+                    );
+
+                    pc2 = new webkitRTCPeerConnection(
+                        { "iceServers": [{ "url": "stun:stun.l.google.com:19302" }] }
+                    );
+
+                    pc1.addStream(Camera.stream);
+                    pc1.createOffer(gotDesc1, null, { mandatory: { OfferToReceiveAudio: true, OfferToReceiveVideo: true } });
+
+                    function gotDesc1(desc) {
+                        console.log("Got desc1: ")
+                        console.log(desc);
+                        pc1.setLocalDescription(desc);
+                        pc2.setRemoteDescription(desc);
+                        pc2.createAnswer(gotDesc2);
+                    }
+
+                    function gotDesc2(desc) {
+                        console.log("Got desc2: ");
+                        console.log(desc);
+//                        pc1.setRemoteDescription(desc);
+//                        pc2.setLocalDescription(desc);
+                    }
+
+                    pc2.onaddstream = function(e) {
+                        console.log("Got stream in 2!");
+
+                        var remoteSource = webkitURL.createObjectURL(e.stream);
+
+                        rv1.src = remoteSource;
+                        rv1.play();
+
+                        rv2.src = remoteSource;
+                        rv2.play();
+
+                        rv3.src = remoteSource;
+                        rv3.play();
+                    }
+
+
+                    /*
+                    pc1.onaddstream = function(remoteStream) {
+                        console.log("Remote stream was just added, wow.");
+                        rv1.src = window.URL.createObjectURL(remoteStream);
+                    };
+
+                    pc1.onicecandidate = function(event) {
+                        if (!pc1 || !event || !event.candidate) {
+                            console.err("onicecandidate just gave me shit I don't know how to handle.");
+                        }
+                        console.log("So, onIceCandidate just fired.");
+                        console.log(event);
+
+                        var candidate = event.candidate;
+                    }
+                    */
+                }
+
+
+
+
+
+            },
+            controller: ["$scope", function($scope) {
+                $scope.createNewSession = function() {
+
+                }
+
+                $scope.joinExistingSession = function() {
+
+                }
+            }]
+
+        };
+    }])
     .directive("chat", ["SocketService", "Camera", "VideoShooter", "User", "$http", function ($SocketService, Camera, $VideoShooter, User, $http) {
         var shooter;
         return {
@@ -67,7 +184,9 @@ angular.module("GifChat.directives", [])
 
 
                 function showPreview(camera) {
-                    element.append(camera.videoElement);
+                    var video = element.find("video")[0];
+                    video.src = camera.streamUrl;
+                    video.play();
                 }
 
                 scope.messages = [];

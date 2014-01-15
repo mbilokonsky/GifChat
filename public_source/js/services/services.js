@@ -27,6 +27,7 @@ angular.module("GifChat.services", [])
             camera.videoElement = videoElement;
             camera.stream = stream;
             camera.dimensions = {width: width, height: height};
+            camera.streamUrl = webkitURL.createObjectURL(stream);
 
             listeners.forEach(function(callback) {
                 callback(camera.videoElement);

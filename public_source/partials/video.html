@@ -1,2 +1,13 @@
 <h1>Video Chat!</h1>
-<p>Hold your horses, I'll make this work.</p>
+<div class="well">
+    <button ng-click="createNewSession()">Create New Session</button>
+    <br />
+    -- or --
+    <form class="form-inline">
+        <input type="text" ng-model="sessionId" />
+        <button ng-click="joinExistingSession()">Join Existing Session</button>
+    </form>
+
+</div>
+
+<video-chat session="{{sessionId}}"></video-chat>
