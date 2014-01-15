@@ -81,7 +81,7 @@ angular.module("GifChat.directives", [])
                 scope.appendMessage = function(message) {
                     scope.messages.push(message);
                     while (scope.messages.length > 30) {
-                        scope.messages.slice(1);
+                        scope.messages.shift();
                     }
                 };
 
@@ -109,11 +109,11 @@ angular.module("GifChat.directives", [])
                 $scope.inputEnabled = true;
                 $scope.submit = function() {
                     $scope.inputEnabled = false;
+                    $scope.messageToSend = "";
                     $scope.postNewMessage($scope.messageToSend, function(err) {
                         if (err) {
                             // TODO
                         }
-                        $scope.messageToSend = "";
                         $scope.inputEnabled = true;
                     });
 
