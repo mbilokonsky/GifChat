@@ -55,12 +55,12 @@ angular.module("GifChat.directives", [])
                 scope.status = "dormant";
                 var localVideoElements = element.find('video');
                 var lv1 = localVideoElements[0];
-                var lv2 = localVideoElements[1];
-                var lv3 = localVideoElements[2];
+//                var lv2 = localVideoElements[1];
+//                var lv3 = localVideoElements[2];
 
-                var rv1 = localVideoElements[3];
-                var rv2 = localVideoElements[4];
-                var rv3 = localVideoElements[5];
+                var rv1 = localVideoElements[1];
+//                var rv2 = localVideoElements[4];
+//                var rv3 = localVideoElements[5];
 
 
                 if (Camera.stream) {
@@ -80,12 +80,6 @@ angular.module("GifChat.directives", [])
 
                     lv1.src = Camera.streamUrl;
                     lv1.play();
-
-                    lv2.src = Camera.streamUrl;
-                    lv2.play();
-
-                    lv3.src = Camera.streamUrl;
-                    lv3.play();
 
                     scope.status = "initializing";
 
@@ -187,12 +181,6 @@ angular.module("GifChat.directives", [])
 
                             rv1.src = url;
                             rv1.play();
-
-                            rv2.src = url;
-                            rv2.play();
-
-                            rv3.src = url;
-                            rv3.play();
 
                         }
 
