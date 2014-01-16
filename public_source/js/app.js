@@ -30,7 +30,24 @@ app.config(function($stateProvider, $urlRouterProvider) {
         })
         .state("video", {
             url: "/video",
-            templateUrl: "partials/video.html"
+            templateUrl: "partials/video.html",
+            controller: function($scope) {
+                $scope.inChannel = false;
+                $scope.moveToChannel = function() {
+                    console.log("OK I moved to a channel!");
+                    $scope.inChannel = true;
+                }
+            }
+        })
+        .state("videochannel", {
+            url: "/video/channel/:session",
+            template: "<video_chat session=\"{{channel}}\"></video_chat>",
+            controller: function($scope, $stateParams) {
+                $scope.channel = $stateParams.session;
+                console.log("OK we made it!");
+                console.log($scope.channel);
+                $scope.inChannel = true;
+            }
         })
         .state("about", {
             url: "/about",

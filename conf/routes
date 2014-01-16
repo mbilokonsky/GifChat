@@ -11,9 +11,10 @@ GET     /partials/*file                 controllers.Assets.at(path="/public/part
 GET     /fonts/*file                    controllers.Assets.at(path="/public/fonts", file)
 GET     /gifs/*file                     controllers.Application.loadImage(file:String)
 
-GET		/socket/:channel			controllers.Application.connectToSocket(channel)
+GET		/socket/:channel			    controllers.Application.connectToSocket(channel)
+GET     /videoSocket/:channel           controllers.Application.connectToVideoSocket(channel)
 
 # Map static resources from the /public folder to the /assets URL path
-GET     /assets/*file               controllers.Assets.at(path="/public", file)
+GET     /assets/*file                   controllers.Assets.at(path="/public", file)
 
 POST    /upload                         controllers.Application.uploadImage()

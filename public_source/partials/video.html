@@ -1,13 +1,9 @@
 <h1>Video Chat!</h1>
-<div class="well">
-    <button ng-click="createNewSession()">Create New Session</button>
-    <br />
-    -- or --
-    <form class="form-inline">
-        <input type="text" ng-model="sessionId" />
-        <button ng-click="joinExistingSession()">Join Existing Session</button>
-    </form>
-
+<div ng-switch="inChannel">
+    <div ng-switch-when="false" class="well">
+        <form class="form-inline">
+            <input type="text" ng-model="sessionId" />
+            <a class='btn' ui-sref="videochannel({session: sessionId})">Create/Join</a>
+        </form>
+    </div>
 </div>
-
-<video-chat session="{{sessionId}}"></video-chat>

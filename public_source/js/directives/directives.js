@@ -52,6 +52,7 @@ angular.module("GifChat.directives", [])
             },
             templateUrl: "/partials/directives/video_chat_directive.html",
             link: function(scope, element) {
+                scope.status = "dormant";
                 var localVideoElements = element.find('video');
                 var lv1 = localVideoElements[0];
                 var lv2 = localVideoElements[1];
@@ -68,10 +69,15 @@ angular.module("GifChat.directives", [])
                     Camera.register(initializeRPC);
                 }
 
-                var pc1;
-                var pc2;
+                var pc;
+                var isInitiator = false;
+                var isRunning = false;
 
                 function initializeRPC() {
+                    var socketURL = "ws://" + window.location.host + "/videoSocket/" + scope.session;
+                    console.log("Connecting to websocket: " + socketURL);
+                    var vs = new WebSocket(socketURL);
+
                     lv1.src = Camera.streamUrl;
                     lv1.play();
 
@@ -81,72 +87,135 @@ angular.module("GifChat.directives", [])
                     lv3.src = Camera.streamUrl;
                     lv3.play();
 
-                    console.log(Camera);
+                    scope.status = "initializing";
 
-                    pc1 = new webkitRTCPeerConnection(
-                        { "iceServers": [{ "url": "stun:stun.l.google.com:19302" }] }
-                    );
-
-                    pc2 = new webkitRTCPeerConnection(
-                        { "iceServers": [{ "url": "stun:stun.l.google.com:19302" }] }
-                    );
-
-                    pc1.addStream(Camera.stream);
-                    pc1.createOffer(gotDesc1, null, { mandatory: { OfferToReceiveAudio: true, OfferToReceiveVideo: true } });
-
-                    function gotDesc1(desc) {
-                        console.log("Got desc1: ")
-                        console.log(desc);
-                        pc1.setLocalDescription(desc);
-                        pc2.setRemoteDescription(desc);
-                        pc2.createAnswer(gotDesc2);
-                    }
-
-                    function gotDesc2(desc) {
-                        console.log("Got desc2: ");
-                        console.log(desc);
-//                        pc1.setRemoteDescription(desc);
-//                        pc2.setLocalDescription(desc);
-                    }
-
-                    pc2.onaddstream = function(e) {
-                        console.log("Got stream in 2!");
-
-                        var remoteSource = webkitURL.createObjectURL(e.stream);
-
-                        rv1.src = remoteSource;
-                        rv1.play();
-
-                        rv2.src = remoteSource;
-                        rv2.play();
-
-                        rv3.src = remoteSource;
-                        rv3.play();
-                    }
-
-
-                    /*
-                    pc1.onaddstream = function(remoteStream) {
-                        console.log("Remote stream was just added, wow.");
-                        rv1.src = window.URL.createObjectURL(remoteStream);
+                    vs.onopen = function(event) {
+                        console.log("Connected to video socket!");
+                        scope.status = "connected, waiting for peer";
+                        scope.$apply();
                     };
 
-                    pc1.onicecandidate = function(event) {
-                        if (!pc1 || !event || !event.candidate) {
-                            console.err("onicecandidate just gave me shit I don't know how to handle.");
+
+                    vs.onmessage = function(event) {
+                        var message = JSON.parse(event.data);
+
+                        console.log("Message received from video socket server: [" + message.action + "]");
+
+                        if (message.action == "handshake") {
+                            isInitiator = message.initiate;
+                            scope.status = "peer found, ready to chat!";
+                            scope.ready = true;
+                            scope.$apply();
+
+                            initPC();
+                        } else if (message.action == "ice") {
+                            try {
+                                var candidate = new RTCIceCandidate({
+                                    sdpMLineIndex: message.label,
+                                    candidate: message.candidate
+                                })
+                                pc.addIceCandidate(candidate);
+                            } catch (ex) {
+                                console.error("Error setting ice: " + ex);
+                            }
+
+                        } else if (message.action == "desc") {
+                            // initialize if you haven't done that yet
+                            console.log(message.desc);
+
+                            try {
+                                pc.setRemoteDescription(new RTCSessionDescription(message.desc));
+                            } catch (ex) {
+                                console.error("Error setting desc: " + ex);
+                            }
+
+
+
+                            if (!isInitiator) {
+                                doAnswer();
+                            }
+                        } else if (message.action == "end") {
+                            scope.status = "chat terminated."
+                            scope.$apply();
+                            isRunning = false;
+                        } else if (message.action == "error") {
+                            console.error(message);
+                        } else if (message.action == "ready" && isInitiator) {
+                            console.log("OK remote peer is ready, time to start!");
+                            startVideoChat();
                         }
-                        console.log("So, onIceCandidate just fired.");
-                        console.log(event);
+                    };
 
-                        var candidate = event.candidate;
+                    function doCall() {
+                        pc.createOffer(setLocalAndSendMessage, null, { mandatory: { OfferToReceiveVideo: true } });
                     }
-                    */
+
+                    function doAnswer() {
+                        pc.createAnswer(setLocalAndSendMessage, null, { mandatory: { OfferToReceiveVideo: true } });
+                    }
+
+                    function setLocalAndSendMessage(desc) {
+                        console.log("Got desc1: ")
+                        console.log(desc);
+                        pc.setLocalDescription(desc);
+                        vs.send(JSON.stringify({action: "desc", desc: desc}));
+                    }
+
+                    function initPC() {
+                        pc = new webkitRTCPeerConnection({"iceServers": [{"url": "stun:stun.l.google.com:19302"}]});
+
+                        pc.onicecandidate = function(e) {
+                            console.log("Ice candidate received!");
+                            if (e.candidate) {
+                                vs.send(JSON.stringify({
+                                    action: "ice",
+                                    label: e.candidate.sdpMLineIndex,
+                                    candidate: e.candidate.candidate
+                                }));
+                            }
+
+
+
+                        }
+
+                        pc.onconnecting = function(e) {
+                            console.log("peer connecting!");
+                        }
+
+                        pc.onopen = function(e) {
+                            console.log("Video chat session opened.");
+                        }
+
+                        pc.onaddstream = function(e) {
+                            console.log("Wow, a remote video stream came through!");
+                            var url = webkitURL.createObjectURL(e.stream);
+
+                            rv1.src = url;
+                            rv1.play();
+
+                            rv2.src = url;
+                            rv2.play();
+
+                            rv3.src = url;
+                            rv3.play();
+
+                        }
+
+                        pc.onremovestream = function(e) {
+                            console.log("A remote video stream was removed.");
+                        }
+
+                        vs.send(JSON.stringify({action: "ready"}));
+                    }
+
+                    function startVideoChat() {
+
+                        pc.addStream(Camera.stream);
+                        if (isInitiator) {
+                            doCall();
+                        }
+                    };
                 }
-
-
-
-
-
             },
             controller: ["$scope", function($scope) {
                 $scope.createNewSession = function() {
@@ -213,8 +282,6 @@ angular.module("GifChat.directives", [])
 
                 scope.postNewMessage = function(message, callback) {
                     shooter.getShot(function(image) {
-                        console.log("Shot taken, now posting!");
-                        console.log("Posting message: " + message);
                         var img = image.substr(22);
                         $http.post("/upload", JSON.stringify({payload: img}))
                             .success(function(result) {
