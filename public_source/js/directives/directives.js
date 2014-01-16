@@ -129,8 +129,6 @@ angular.module("GifChat.directives", [])
                                 console.error("Error setting desc: " + ex);
                             }
 
-
-
                             if (!isInitiator) {
                                 doAnswer();
                             }
@@ -157,15 +155,15 @@ angular.module("GifChat.directives", [])
                     function setLocalAndSendMessage(desc) {
                         console.log("Got desc1: ")
                         console.log(desc);
-                        pc.setLocalDescription(desc);
+                        pc.setLocalDescription(new RTCSessionDescription(desc));
                         vs.send(JSON.stringify({action: "desc", desc: desc}));
                     }
 
                     function initPC() {
                         pc = new webkitRTCPeerConnection({"iceServers": [{"url": "stun:stun.l.google.com:19302"}]});
+                        pc.addStream(Camera.stream);
 
                         pc.onicecandidate = function(e) {
-                            console.log("Ice candidate received!");
                             if (e.candidate) {
                                 vs.send(JSON.stringify({
                                     action: "ice",
@@ -173,9 +171,6 @@ angular.module("GifChat.directives", [])
                                     candidate: e.candidate.candidate
                                 }));
                             }
-
-
-
                         }
 
                         pc.onconnecting = function(e) {
@@ -209,8 +204,6 @@ angular.module("GifChat.directives", [])
                     }
 
                     function startVideoChat() {
-
-                        pc.addStream(Camera.stream);
                         if (isInitiator) {
                             doCall();
                         }
