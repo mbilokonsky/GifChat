@@ -1,5 +1,4 @@
 var AnimatedGif = require("../../bower_components/animated-gif/src/Animated_GIF.js");
-var gumHelper = require("../../bower_components/gumhelper/gumhelper.js");
 
 angular.module("GifChat.services", [])
     .value("version", "0.1")
