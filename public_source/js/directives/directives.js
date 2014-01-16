@@ -252,7 +252,14 @@ angular.module("GifChat.directives", [])
                     while (scope.messages.length > 30) {
                         scope.messages.shift();
                     }
+
+                    updateScrolling();
                 };
+
+                var container = element.find($("#chatContainer"));
+                function updateScrolling() {
+                    // TODO update scroll position
+                }
 
                 var previousProgress = 0;
                 function updateProgress(percent) {
