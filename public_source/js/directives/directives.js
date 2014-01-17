@@ -1,4 +1,5 @@
 var sockets = require("./socket");
+require("../../bower_components/angular-video-chat/main.js");
 
 angular.module("GifChat.directives", [])
     .factory("SocketService", function() {
@@ -43,7 +44,7 @@ angular.module("GifChat.directives", [])
             }]
         }
     }])
-    .directive("videoChat", ["User", "Camera", function(User, Camera) {
+    .directive("videoChat", ["VideoChat", function(VideoChat) {
 
         return {
             restrict: "E",
@@ -55,162 +56,25 @@ angular.module("GifChat.directives", [])
                 scope.status = "dormant";
                 var localVideoElements = element.find('video');
                 var lv1 = localVideoElements[0];
-//                var lv2 = localVideoElements[1];
-//                var lv3 = localVideoElements[2];
-
                 var rv1 = localVideoElements[1];
-//                var rv2 = localVideoElements[4];
-//                var rv3 = localVideoElements[5];
 
+                var socketURL = "ws://" + window.location.host + "/videoSocket/" + scope.session;
+                console.log("Connecting to websocket: " + socketURL);
+                var vs = new WebSocket(socketURL);
 
-                if (Camera.stream) {
-                    initializeRPC();
-                } else {
-                    Camera.register(initializeRPC);
-                }
+                scope.status = "initializing";
 
-                var pc;
-                var isInitiator = false;
-                var isRunning = false;
+                vs.onopen = function() {
+                    console.log("Connected to video socket!");
+                    scope.status = "connected, waiting for peer";
+                    scope.$apply();
+                    VideoChat(lv1, rv1, vs);
+                };
 
-                function initializeRPC() {
-                    var socketURL = "ws://" + window.location.host + "/videoSocket/" + scope.session;
-                    console.log("Connecting to websocket: " + socketURL);
-                    var vs = new WebSocket(socketURL);
-
-                    lv1.src = Camera.streamUrl;
-                    lv1.play();
-
-                    scope.status = "initializing";
-
-                    vs.onopen = function(event) {
-                        console.log("Connected to video socket!");
-                        scope.status = "connected, waiting for peer";
-                        scope.$apply();
-                    };
-
-
-                    vs.onmessage = function(event) {
-                        var message = JSON.parse(event.data);
-
-                        console.log("Message received from video socket server: [" + message.action + "]");
-
-                        if (message.action == "handshake") {
-                            isInitiator = message.initiate;
-                            scope.status = "peer found, ready to chat!";
-                            scope.ready = true;
-                            scope.$apply();
-
-                            initPC();
-                        } else if (message.action == "ice") {
-                            try {
-                                var candidate = new RTCIceCandidate({
-                                    sdpMLineIndex: message.label,
-                                    candidate: message.candidate
-                                })
-                                pc.addIceCandidate(candidate);
-                            } catch (ex) {
-                                console.error("Error setting ice: " + ex);
-                            }
-
-                        } else if (message.action == "desc") {
-                            // initialize if you haven't done that yet
-                            console.log(message.desc);
-
-                            try {
-                                pc.setRemoteDescription(new RTCSessionDescription(message.desc));
-                            } catch (ex) {
-                                console.error("Error setting desc: " + ex);
-                            }
-
-                            if (!isInitiator) {
-                                doAnswer();
-                            }
-                        } else if (message.action == "end") {
-                            scope.status = "chat terminated."
-                            scope.$apply();
-                            isRunning = false;
-                        } else if (message.action == "error") {
-                            console.error(message);
-                        } else if (message.action == "ready" && isInitiator) {
-                            console.log("OK remote peer is ready, time to start!");
-                            startVideoChat();
-                        }
-                    };
-
-                    function doCall() {
-                        pc.createOffer(setLocalAndSendMessage, null, { mandatory: { OfferToReceiveVideo: true } });
-                    }
-
-                    function doAnswer() {
-                        pc.createAnswer(setLocalAndSendMessage, null, { mandatory: { OfferToReceiveVideo: true } });
-                    }
-
-                    function setLocalAndSendMessage(desc) {
-                        console.log("Got desc1: ")
-                        console.log(desc);
-                        pc.setLocalDescription(new RTCSessionDescription(desc));
-                        vs.send(JSON.stringify({action: "desc", desc: desc}));
-                    }
-
-                    function initPC() {
-                        pc = new webkitRTCPeerConnection({"iceServers": [{"url": "stun:stun.l.google.com:19302"}]});
-                        pc.addStream(Camera.stream);
-
-                        pc.onicecandidate = function(e) {
-                            if (e.candidate) {
-                                vs.send(JSON.stringify({
-                                    action: "ice",
-                                    label: e.candidate.sdpMLineIndex,
-                                    candidate: e.candidate.candidate
-                                }));
-                            }
-                        }
-
-                        pc.onconnecting = function(e) {
-                            console.log("peer connecting!");
-                        }
-
-                        pc.onopen = function(e) {
-                            console.log("Video chat session opened.");
-                        }
-
-                        pc.onaddstream = function(e) {
-                            console.log("Wow, a remote video stream came through!");
-                            var url = webkitURL.createObjectURL(e.stream);
-
-                            rv1.src = url;
-                            rv1.play();
-
-                        }
-
-                        pc.onremovestream = function(e) {
-                            console.log("A remote video stream was removed.");
-                        }
-
-                        vs.send(JSON.stringify({action: "ready"}));
-                    }
-
-                    function startVideoChat() {
-                        if (isInitiator) {
-                            doCall();
-                        }
-                    };
-                }
-            },
-            controller: ["$scope", function($scope) {
-                $scope.createNewSession = function() {
-
-                }
-
-                $scope.joinExistingSession = function() {
-
-                }
-            }]
-
+            }
         };
     }])
-    .directive("chat", ["SocketService", "Camera", "VideoShooter", "User", "$http", function ($SocketService, Camera, $VideoShooter, User, $http) {
+    .directive("chat", ["Socket", "Camera", "VideoShooter", "User", "$http", function (Socket, Camera, $VideoShooter, User, $http) {
         var shooter;
         return {
             restrict: "E",
@@ -222,12 +86,9 @@ angular.module("GifChat.directives", [])
 
                 if (shooter) {
                     showPreview(Camera);
-                } else if (Camera.videoElement) {
-                    shooter = new $VideoShooter(Camera.videoElement);
-                    showPreview(Camera);
                 } else {
-                    Camera.register(function(videoElement) {
-                        shooter = new $VideoShooter(videoElement);
+                    Camera.register(function() {
+                        shooter = new $VideoShooter(Camera.videoElement);
                         showPreview(Camera);
                     });
                 }
@@ -240,12 +101,18 @@ angular.module("GifChat.directives", [])
                 }
 
                 scope.messages = [];
-                scope.socket = $SocketService.connect("foo");
-
-                scope.socket.onmessage = function(e) {
-                    scope.appendMessage(JSON.parse(e.data));
-                    scope.$apply();
-                };
+                var socket = Socket.register("ws://" + window.location.host + "/socket/foo", {
+                    onopen: function(e) {
+                        console.log("Socket connection initialized.");
+                    },
+                    onmessage: function(e) {
+                        scope.appendMessage(JSON.parse(e.data));
+                        scope.$apply();
+                    },
+                    onclose: function(e) {
+                        console.log("socket connection closed.");
+                    }
+                });
 
                 scope.appendMessage = function(message) {
                     scope.messages.push(message);
@@ -256,7 +123,6 @@ angular.module("GifChat.directives", [])
                     updateScrolling();
                 };
 
-                var container = element.find($("#chatContainer"));
                 function updateScrolling() {
                     // TODO update scroll position
                 }
@@ -273,12 +139,12 @@ angular.module("GifChat.directives", [])
                         var img = image.substr(22);
                         $http.post("/upload", JSON.stringify({payload: img}))
                             .success(function(result) {
-                                scope.socket.send(JSON.stringify({user: User.name, text: message, image: result.fileName}));
+                                socket.send(JSON.stringify({user: User.name, text: message, image: result.fileName}));
                                 callback();
                             })
                             .error(function(err) {
                                 console.err(err);
-                                scope.socket.send(JSON.stringify({user: User.name, text: message, image: "/images/error.gif"}));
+                                socket.send(JSON.stringify({user: User.name, text: message, image: "/images/error.gif"}));
                             });
                     }, 10, 0.2, updateProgress);
                 };
